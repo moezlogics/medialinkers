@@ -1,5 +1,25 @@
 # Deploy to www.medialinkers.pk (own server, port 3113)
 
+## Quick way (Git + CloudPanel)
+
+On the server, inside the project folder (root or site user both work):
+
+```bash
+cd /home/medialinkers/htdocs/www.medialinkers.pk
+git pull
+bash deploy.sh --first      # first time: install, create missing content, build, start on 3113
+```
+
+Every later update:
+
+```bash
+git pull && bash deploy.sh
+```
+
+`deploy.sh` checks `.env`, gives the files to the site user, runs `npm ci`, builds, and starts or reloads PM2 (`medialinkers`, port 3113). In CloudPanel the site must be a **Node.js** site with **App Port 3113**; add SSL from *SSL/TLS → New Let's Encrypt Certificate*. To start the site after a server reboot, run `pm2 startup` as the site user once and paste the line it prints as root.
+
+The sections below are the manual steps (database user, Nginx without CloudPanel, etc.).
+
 Assumes Ubuntu/Debian with Nginx. The app runs with PM2 on `127.0.0.1:3113`; Nginx serves it on `https://www.medialinkers.pk`. MongoDB is already installed on the same server.
 
 Replace `SERVER_USER@SERVER_IP` with your SSH login.

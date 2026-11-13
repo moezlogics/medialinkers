@@ -36,8 +36,22 @@ export async function importCaseStudies({ overwrite = false } = {}) {
   const services = await Service.find({}, "slug").lean<{ _id: unknown; slug: string }[]>();
   const bySlug = new Map(services.map((s) => [s.slug, String(s._id)]));
   for (const cs of CASE_STUDIES) {
-    const exists = await Project.exists({ slug: cs.slug });
+    const current = await Project.findOne({ slug: cs.slug }, "proofs").lean<{ proofs?: unknown[] }>();
+    const exists = !!current;
     if (exists && !overwrite) {
+      // Never touch edited content; only add proof screenshots if they are still missing
+      if (!current.proofs?.length && cs.proofs.length) {
+        const proofs = [];
+        for (const p of cs.proofs) {
+          const m = await uploadLocal(p.file, p.caption);
+          if (m) proofs.push({ image: m.url, caption: p.caption, width: m.width, height: m.height });
+        }
+        if (proofs.length) {
+          await Project.updateOne({ slug: cs.slug }, { $set: { proofs } });
+          console.log(`  + screenshots added: ${cs.slug} (${proofs.length})`);
+          continue;
+        }
+      }
       console.log("  = case study exists:", cs.slug);
       continue;
     }
