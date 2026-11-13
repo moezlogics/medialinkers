@@ -1,0 +1,344 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Admin-only utilities live in app/newlogin/admin.css, so visitors never download them */
+@source not "../components/admin";
+@source not "./newlogin";
+
+/* Brand tokens. --accent can be overridden from Admin > Settings > Appearance */
+:root {
+  --ink: #0b0b0f;
+  --paper: #f4f2ec;
+  --accent: #ff5a1f;
+  --accent-2: #d4ff3a;
+  --muted: #5d5d66;
+  --line: rgb(11 11 15 / 0.1);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-accent: var(--accent);
+  --color-lime: var(--accent-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+  --animate-marquee: marquee var(--marquee-speed, 30s) linear infinite;
+  --animate-marquee-rev: marquee-rev var(--marquee-speed, 30s) linear infinite;
+  --animate-spin-slow: spin 18s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes marquee-rev {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes ping-soft {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+
+}
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+@layer base {
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 1320px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) { .container-x { padding-inline: 1.5rem; } }
+  @media (min-width: 1024px) { .container-x { padding-inline: 2rem; } }
+
+  /* Compact vertical rhythm for sections */
+  .section { padding-block: 3rem; }
+  @media (min-width: 768px) { .section { padding-block: 4.5rem; } }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .h-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0.8rem 1.4rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1;
+    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-accent { background: var(--accent); color: #fff; box-shadow: 0 10px 30px -10px var(--accent); }
+  .btn-accent:hover { background: var(--ink); box-shadow: none; }
+  .btn-dark { background: var(--ink); color: #fff; }
+  .btn-dark:hover { background: var(--accent); }
+  .btn-outline { border: 1.5px solid currentColor; }
+  .btn-outline:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-light { background: #fff; color: var(--ink); }
+  .btn-light:hover { background: var(--accent-2); }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 1.5rem;
+  }
+
+  .text-stroke {
+    -webkit-text-stroke: 1.5px currentColor;
+    color: transparent;
+  }
+
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-pause:hover .animate-marquee,
+  .marquee-pause:hover .animate-marquee-rev {
+    animation-play-state: paused;
+  }
+
+  .ping-soft { animation: ping-soft 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+}
+
+/* Rich text content rendered from the admin editor */
+.rich {
+  --tw-prose-body: #2a2a31;
+  --tw-prose-headings: var(--ink);
+  --tw-prose-links: var(--ink);
+  --tw-prose-bold: var(--ink);
+  --tw-prose-quotes: var(--ink);
+  --tw-prose-bullets: var(--accent);
+  --tw-prose-counters: var(--accent);
+}
+.rich a { text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.rich a:hover { color: var(--accent); }
+.rich blockquote { border-left-color: var(--accent); font-style: normal; background: #fff; border-radius: 0 1rem 1rem 0; padding: 0.75rem 1.25rem; }
+.rich img { border-radius: 1rem; }
+.rich iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; border-radius: 1rem; }
+.rich table { display: block; overflow-x: auto; }
+.rich th, .rich td { border: 1px solid var(--line); padding: 0.5rem 0.75rem; }
+.rich mark { background: var(--accent-2); padding: 0 0.2em; border-radius: 0.2em; }
+.rich ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+.rich ul[data-type="taskList"] li { display: flex; gap: 0.5rem; align-items: flex-start; }
+.rich ul[data-type="taskList"] li > label { margin-top: 0.3rem; }
+.rich h2, .rich h3 { scroll-margin-top: 6rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+.anim-rise { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Scroll reveal: progressive enhancement, content is visible without support */
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(0% + var(--reveal-delay, 0px)) entry calc(55% + var(--reveal-delay, 0px));
+    }
+  }
+}
+
+/* ---------- Small CSS animations (replace the JS animation library) ---------- */
+@keyframes pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+.anim-pop { animation: pop 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+
+@keyframes slide-x {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: none; }
+}
+.anim-slide { animation: slide-x 0.3s ease-out both; }
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: none; }
+}
+.anim-slide-in { animation: slide-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Mobile menu opens as a circle growing from the menu button */
+@keyframes menu-in {
+  from { clip-path: circle(0% at calc(100% - 40px) 40px); }
+  to { clip-path: circle(150% at calc(100% - 40px) 40px); }
+}
+.menu-in { animation: menu-in 0.55s cubic-bezier(0.65, 0, 0.35, 1) both; }
+.menu-out { animation: menu-in 0.38s cubic-bezier(0.65, 0, 0.35, 1) reverse both; }
+
+/* Rotating word in the hero */
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(70%); }
+  to { opacity: 1; transform: none; }
+}
+.word-in { animation: word-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Dotted line linking the hero service icons */
+@keyframes draw-line {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.hero-link-line { animation: draw-line 1.4s ease-out 0.3s both; }
+
+/* Process connector fills while scrolling */
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .process-line {
+      animation: grow-x linear both;
+      animation-timeline: view();
+      animation-range: entry 40% cover 60%;
+    }
+    /* Mission statement: words light up one by one */
+    .stmt { view-timeline-name: --stmt; }
+    .stmt-word {
+      animation: word-light linear both;
+      animation-timeline: --stmt;
+    }
+    /* Reading progress bar */
+    .scroll-progress {
+      animation: grow-x linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+@supports not (animation-timeline: view()) {
+  .scroll-progress { display: none; }
+}
+@keyframes word-light {
+  from { opacity: 0.15; }
+  to { opacity: 1; }
+}
+
+/* Case study charts: the line draws itself, the last point pulses */
+@keyframes chart-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chart-line { stroke-dasharray: 1; animation: chart-draw 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.2s both; }
+.chart-area { animation: fade-in 1.2s ease-out 0.9s both; }
+.chart-dot { animation: pop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) 1.8s both; }
+.chart-ping { animation: ping-soft 2s ease-out 2.2s infinite; transform-box: fill-box; transform-origin: center; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .chart-line { animation: chart-draw linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
+    .chart-area { animation: fade-in linear both; animation-timeline: view(); animation-range: entry 50% cover 50%; }
+    .chart-dot { animation: pop linear both; animation-timeline: view(); animation-range: cover 40% cover 50%; }
+  }
+}
+
+/* Before → after bar in case study results */
+.bar-grow { animation: grow-x 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both; transform-origin: left; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .bar-grow { animation: grow-x linear both; animation-timeline: view(); animation-range: entry 60% cover 45%; }
+  }
+}
+
+/* Audit box: checklist ticks off one by one */
+.audit-row { animation: slide-x 0.5s ease-out both; }
+.audit-tick { animation: pop 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+
+/* Audit popup */
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+.audit-dialog[open] { animation: dialog-in 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.audit-dialog[open]::backdrop { animation: fade-in 0.3s ease-out; }
+
+/* First opening of the mega menu (later openings use the transition) */
+@keyframes mega-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.mega-in { animation: mega-in 0.2s ease-out; }
