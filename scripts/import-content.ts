@@ -6,7 +6,8 @@
  *      npx tsx scripts/import-content.ts deploy/content.json.gz --replace   (replaces those collections)
  */
 import { config } from "dotenv";
-config({ path: ".env.local" });
+// Reads .env.local first, then .env (whichever the server uses)
+config({ path: [".env.local", ".env"], quiet: true });
 import mongoose from "mongoose";
 import { gunzipSync } from "node:zlib";
 import { readFileSync } from "node:fs";
@@ -14,7 +15,7 @@ import path from "node:path";
 
 async function main() {
   const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI missing in .env.local");
+  if (!uri) throw new Error("MONGODB_URI missing — add it to .env or .env.local");
   const file = path.resolve(process.argv[2] || "deploy/content.json.gz");
   const replace = process.argv.includes("--replace");
   await mongoose.connect(uri);

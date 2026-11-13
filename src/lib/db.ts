@@ -11,7 +11,7 @@ g._mongoose = cached;
 mongoose.set("strictQuery", true);
 
 export async function connectDB() {
-  if (!uri) throw new Error("MONGODB_URI is not set. Add it to .env.local");
+  if (!uri) throw new Error("MONGODB_URI is not set. Add it to .env or .env.local");
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
     cached.promise = mongoose.connect(uri, {

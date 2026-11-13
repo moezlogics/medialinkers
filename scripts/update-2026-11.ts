@@ -8,7 +8,8 @@
  *      npx tsx scripts/update-2026-11.ts --refresh  (re-writes case studies from scripts/case-studies.ts)
  */
 import { config } from "dotenv";
-config({ path: ".env.local" });
+// Reads .env.local first, then .env (whichever the server uses)
+config({ path: [".env.local", ".env"], quiet: true });
 import mongoose from "mongoose";
 import { Lead, Page, Redirect, Setting } from "../src/lib/models";
 import { sectionDefaults } from "../src/lib/sections";
@@ -42,7 +43,7 @@ const AUDIT_FAQ = "Yes. Send us your website and email and a senior SEO speciali
 
 async function main() {
   const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI missing in .env.local");
+  if (!uri) throw new Error("MONGODB_URI missing — add it to .env or .env.local");
   await mongoose.connect(uri);
   console.log("Connected");
 

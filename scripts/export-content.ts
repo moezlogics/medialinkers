@@ -6,7 +6,8 @@
  * Run: npx tsx scripts/export-content.ts [output-file]   (default: deploy/content.json.gz)
  */
 import { config } from "dotenv";
-config({ path: ".env.local" });
+// Reads .env.local first, then .env (whichever the server uses)
+config({ path: [".env.local", ".env"], quiet: true });
 import mongoose from "mongoose";
 import { gzipSync } from "node:zlib";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -16,7 +17,7 @@ export const CONTENT_COLLECTIONS = ["settings", "pages", "services", "categories
 
 async function main() {
   const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI missing in .env.local");
+  if (!uri) throw new Error("MONGODB_URI missing — add it to .env or .env.local");
   const out = path.resolve(process.argv[2] || "deploy/content.json.gz");
   await mongoose.connect(uri);
   const db = mongoose.connection.db!;

@@ -63,10 +63,10 @@ sudo mkdir -p /var/www/medialinkers
 sudo chown $USER:$USER /var/www/medialinkers
 cd /var/www/medialinkers
 tar -xzf /tmp/medialinkers-web.tar.gz
-nano .env.local
+nano .env.local      # or .env — both work
 ```
 
-Contents of `.env.local`:
+Contents of `.env.local` (or `.env`):
 
 ```ini
 MONGODB_URI=mongodb://medialinkers:PASTE_THE_GENERATED_PASSWORD@127.0.0.1:27017/medialinkers?authSource=medialinkers

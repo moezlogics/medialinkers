@@ -4,7 +4,8 @@
  *      npm run seed -- --reset (wipes content collections first; users and leads are kept)
  */
 import { config } from "dotenv";
-config({ path: ".env.local" });
+// Reads .env.local first, then .env (whichever the server uses)
+config({ path: [".env.local", ".env"], quiet: true });
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import sharp from "sharp";
@@ -91,7 +92,7 @@ async function uploadRemote(name: string, url: string) {
 
 async function main() {
   const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI missing in .env.local");
+  if (!uri) throw new Error("MONGODB_URI missing — add it to .env or .env.local");
   await mongoose.connect(uri);
   console.log("Connected to", uri.replace(/\/\/[^@]*@/, "//***@"));
 
@@ -104,7 +105,7 @@ async function main() {
   if (!(await User.exists({}))) {
     const email = process.env.ADMIN_EMAIL || "admin@medialinkers.pk";
     const password = process.env.ADMIN_PASSWORD;
-    if (!password) throw new Error("Set ADMIN_PASSWORD in .env.local");
+    if (!password) throw new Error("Set ADMIN_PASSWORD in .env or .env.local");
     await User.create({ name: process.env.ADMIN_NAME || "Admin", email, passwordHash: await bcrypt.hash(password, 12), role: "admin" });
     console.log(`Admin user created: ${email} (password from .env.local)`);
   }
