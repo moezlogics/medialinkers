@@ -14,7 +14,7 @@ Admin panel: **http://localhost:3000/newlogin** — the first admin's email and 
 
 `npm run seed -- --reset` wipes content (not users or leads) and seeds again.
 
-Existing database from before November 2026? Run `npx tsx scripts/update-2026-11.ts` once: it adds the case studies (with screenshots from `../case studies/`), creates `/case-studies`, adds case studies to the home page and switches every “free audit” link to the new audit request popup. Safe to run more than once; `--refresh` rewrites the case studies from `scripts/case-studies.ts`.
+Existing database from before November 2026? Run `npx tsx scripts/update-2026-11.ts` once: it adds the case studies (with screenshots from `scripts/case-study-images/`), creates `/case-studies`, adds case studies to the home page and switches every “free audit” link to the new audit request popup. Safe to run more than once; `--refresh` rewrites the case studies from `scripts/case-studies.ts`.
 
 ## Environment (`.env.local`)
 

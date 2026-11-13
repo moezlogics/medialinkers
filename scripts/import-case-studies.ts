@@ -6,15 +6,16 @@ import { Readable } from "node:stream";
 import { Media, Project, Service } from "../src/lib/models";
 import { CASE_STUDIES } from "./case-studies";
 
-const DIR = path.resolve(process.cwd(), "..", "case studies");
+// Screenshots ship with the repo (scripts/case-study-images); the old outside folder still works
+const DIRS = [path.resolve(process.cwd(), "scripts", "case-study-images"), path.resolve(process.cwd(), "..", "case studies")];
 
 /** Stores a local screenshot in the media library (WebP) once; returns url + size. */
 async function uploadLocal(file: string, alt: string) {
   const existing = await Media.findOne({ originalName: file }).lean<{ url: string; width: number; height: number }>();
   if (existing) return existing;
-  const full = path.join(DIR, file);
-  if (!existsSync(full)) {
-    console.warn("  ! screenshot not found:", full);
+  const full = DIRS.map((d) => path.join(d, file)).find((f) => existsSync(f));
+  if (!full) {
+    console.warn("  ! screenshot not found:", path.join(DIRS[0], file));
     return null;
   }
   const out = await sharp(readFileSync(full)).webp({ quality: 88 }).toBuffer({ resolveWithObject: true });
