@@ -21,8 +21,10 @@ fi
 
 # Checks
 if [ ! -f .env ] && [ ! -f .env.local ]; then echo "✗ .env is missing (see DEPLOY.md)"; exit 1; fi
-if ! cat .env .env.local 2>/dev/null | grep -q '^MONGODB_URI='; then echo "✗ MONGODB_URI is not set in .env"; exit 1; fi
-if ! cat .env .env.local 2>/dev/null | grep -q '^NEXT_PUBLIC_SITE_URL=https://'; then echo "! NEXT_PUBLIC_SITE_URL should be https://www.medialinkers.pk"; fi
+# Looks in whichever of .env / .env.local exist (allows "export NAME=" and spaces)
+has_env() { grep -qsE "^[[:space:]]*(export[[:space:]]+)?$1" .env .env.local; }
+if ! has_env 'MONGODB_URI[[:space:]]*='; then echo "✗ MONGODB_URI is not set in .env"; exit 1; fi
+if ! has_env 'NEXT_PUBLIC_SITE_URL[[:space:]]*=[[:space:]]*"?https://'; then echo "! NEXT_PUBLIC_SITE_URL should be https://www.medialinkers.pk"; fi
 if ! command -v node >/dev/null; then echo "✗ Node.js not found for user $(whoami). In CloudPanel pick a Node.js version for the site."; exit 1; fi
 if [ "$(node -p 'process.versions.node.split(".")[0]')" -lt 20 ]; then echo "✗ Node $(node -v) is too old (need 20.9 or newer)"; exit 1; fi
 PM2="pm2"
