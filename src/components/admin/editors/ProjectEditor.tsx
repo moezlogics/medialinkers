@@ -20,7 +20,7 @@ type Svc = { _id: string; title: string; parent?: string | null };
 const blank = (): P => ({
   _id: "", title: "", slug: "", client: "", confidential: false, industry: "", location: "", period: "", duration: "", serviceRefs: [], services: [],
   website: "", excerpt: "", coverImage: "", logo: "", accent: "", results: [], trend: { label: "", points: [] }, challenge: "", approach: [], content: "",
-  outcome: "", proofs: [], quote: { text: "", name: "", role: "" }, gallery: [], featured: false, status: "draft", seo: {}, order: 0,
+  outcome: "", proofs: [], screens: [], quote: { text: "", name: "", role: "" }, gallery: [], featured: false, status: "draft", seo: {}, order: 0,
 });
 
 const SWATCHES = ["#d4ff3a", "#5eead4", "#a5b4fc", "#fdba74", "#93c5fd", "#f9a8d4", "#86efac"];
@@ -32,7 +32,7 @@ export default function ProjectEditor({ initial, titleTemplate }: { initial: (Pr
   const [saved, setSaved] = useState(JSON.stringify(start));
   const [tab, setTab] = useState("details");
   const [saving, setSaving] = useState(false);
-  const [picker, setPicker] = useState(false);
+  const [picker, setPicker] = useState<false | "proof" | "screen">(false);
   const [slugTouched, setSlugTouched] = useState(!!initial);
   const [svcs, setSvcs] = useState<Svc[]>([]);
   const [pointsText, setPointsText] = useState((start.trend?.points || []).join(", "));
@@ -74,6 +74,7 @@ export default function ProjectEditor({ initial, titleTemplate }: { initial: (Pr
   const refs = new Set((p.serviceRefs || []).map(String));
   const toggleRef = (id: string) => set("serviceRefs", refs.has(id) ? [...refs].filter((x) => x !== id) : [...refs, id]);
   const proofs = p.proofs || [];
+  const screens = p.screens || [];
   const moveProof = (i: number, d: number) => {
     const j = i + d;
     if (j < 0 || j >= proofs.length) return;
@@ -91,7 +92,7 @@ export default function ProjectEditor({ initial, titleTemplate }: { initial: (Pr
             { id: "details", label: "Details" },
             { id: "results", label: `Results & chart (${p.results?.length || 0})` },
             { id: "story", label: "Story" },
-            { id: "proof", label: `Proof (${proofs.length})` },
+            { id: "proof", label: `Screenshots (${proofs.length + screens.length})` },
             { id: "seo", label: "SEO" },
           ]}
           active={tab}
@@ -233,12 +234,39 @@ export default function ProjectEditor({ initial, titleTemplate }: { initial: (Pr
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setPicker(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/15 py-6 text-sm text-ink/50 hover:border-accent hover:text-accent">
-              <ImagePlus className="size-5" /> Add screenshot
+            <button type="button" onClick={() => setPicker("proof")} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/15 py-6 text-sm text-ink/50 hover:border-accent hover:text-accent">
+              <ImagePlus className="size-5" /> Add data screenshot
             </button>
           </div>
-          <MediaPicker open={picker} onClose={() => setPicker(false)} onSelect={(m) => set("proofs", [...proofs, { image: m.url, caption: m.alt || "", width: m.width || undefined, height: m.height || undefined }])} />
-          <div className="mt-4"><Button variant="outline" size="sm" onClick={() => setPicker(true)}>Choose from library</Button></div>
+        </Card>
+      )}
+
+      {tab === "proof" && (
+        <Card title="Website screenshots" description="For websites we designed or built: desktop shots appear in a browser frame, mobile shots in a phone frame. The first desktop shot is also used on the card when there is no growth chart.">
+          <div className="space-y-3">
+            {screens.map((sc, i) => (
+              <div key={sc.image + i} className="grid gap-3 rounded-2xl border border-line p-3 sm:grid-cols-[120px_1fr_140px_auto] sm:items-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sc.image} alt="" className={cn("w-full rounded-xl bg-paper object-cover object-top", sc.device === "mobile" ? "aspect-[9/16] max-w-[70px]" : "aspect-[16/10]")} />
+                <Input value={sc.caption || ""} onChange={(e) => set("screens", screens.map((x, j) => (j === i ? { ...x, caption: e.target.value } : x)))} placeholder="Home page on desktop" />
+                <Select value={sc.device || "desktop"} onChange={(e) => set("screens", screens.map((x, j) => (j === i ? { ...x, device: e.target.value as "desktop" | "mobile" } : x)))} options={[{ value: "desktop", label: "Desktop" }, { value: "mobile", label: "Mobile" }]} />
+                <button type="button" onClick={() => set("screens", screens.filter((_, j) => j !== i))} className="grid size-9 place-items-center rounded-lg text-red-600 hover:bg-red-50" aria-label="Remove"><X className="size-4" /></button>
+              </div>
+            ))}
+            <button type="button" onClick={() => setPicker("screen")} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/15 py-6 text-sm text-ink/50 hover:border-accent hover:text-accent">
+              <ImagePlus className="size-5" /> Add website screenshot
+            </button>
+          </div>
+          <MediaPicker
+            open={!!picker}
+            onClose={() => setPicker(false)}
+            onSelect={(m) => {
+              const item = { image: m.url, caption: m.alt || "", width: m.width || undefined, height: m.height || undefined };
+              if (picker === "screen") set("screens", [...screens, { ...item, device: m.height > m.width ? "mobile" : "desktop" }]);
+              else set("proofs", [...proofs, item]);
+            }}
+          />
+          <div className="mt-4"><Button variant="outline" size="sm" onClick={() => setPicker("screen")}>Choose from library</Button></div>
         </Card>
       )}
 

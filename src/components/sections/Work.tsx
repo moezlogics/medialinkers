@@ -77,9 +77,14 @@ export default async function Work({ data, ctx }: SectionProps) {
     return {
       id: p.slug,
       groups: [...new Set(used.map((u) => u.mainId))],
+      region: p.location || "",
       node: <CaseStudyCard project={p} tags={projectTags(p, map)} index={i} />,
     };
   });
+  // Countries, most case studies first
+  const regionCount = new Map<string, number>();
+  for (const it of items) if (it.region) regionCount.set(it.region, (regionCount.get(it.region) || 0) + 1);
+  const regions = [...regionCount.entries()].sort((a, b) => b[1] - a[1]).map(([r]) => r);
   const filters = ctx.services
     .filter((s) => items.some((i) => i.groups.includes(s._id)))
     .map((s) => ({ value: s._id, label: s.shortTitle || s.title }));
@@ -88,7 +93,7 @@ export default async function Work({ data, ctx }: SectionProps) {
     <section className="section">
       <div className="container-x">
         {heading}
-        <CaseStudyFilter filters={filters} items={items} />
+        <CaseStudyFilter filters={filters} regions={regions} items={items} />
       </div>
     </section>
   );

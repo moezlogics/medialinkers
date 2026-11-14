@@ -164,6 +164,7 @@ PostSchema.index({ status: 1, publishedAt: -1 });
 
 const ResultSchema = new Schema<any>({ value: String, label: String, before: String, after: String }, { _id: false });
 const ProofSchema = new Schema<any>({ image: String, caption: String, width: Number, height: Number }, { _id: false });
+const ScreenSchema = new Schema<any>({ image: String, caption: String, device: { type: String, enum: ["desktop", "mobile"], default: "desktop" }, width: Number, height: Number }, { _id: false });
 
 const ProjectSchema = new Schema<any>(
   {
@@ -191,6 +192,8 @@ const ProjectSchema = new Schema<any>(
     content: { type: String, default: "" },
     outcome: { type: String, default: "" },
     proofs: [ProofSchema],
+    // Screenshots of a website we built (shown in browser / phone frames)
+    screens: [ScreenSchema],
     quote: { text: { type: String, default: "" }, name: { type: String, default: "" }, role: { type: String, default: "" } },
     gallery: [String],
     featured: { type: Boolean, default: false },

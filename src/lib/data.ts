@@ -102,7 +102,8 @@ export const getPost = cache(async (slug: string, preview = false): Promise<Post
 });
 
 // Cards only need the summary, never the long story
-const PROJECT_CARD = { content: 0, challenge: 0, approach: 0, outcome: 0, proofs: 0, gallery: 0, seo: 0 };
+// (only the first proof screenshot: cards show a peek of it)
+const PROJECT_CARD = { content: 0, challenge: 0, approach: 0, outcome: 0, gallery: 0, screens: 0, seo: 0, proofs: { $slice: 1 } };
 const PROJECT_SORT = { featured: -1, order: 1, createdAt: -1 } as const;
 
 export const getProjects = cache(async (limit = 0, featuredOnly = false): Promise<ProjectDoc[]> => {

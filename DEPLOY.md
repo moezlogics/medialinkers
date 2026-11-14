@@ -16,7 +16,7 @@ Every later update:
 git pull && bash deploy.sh
 ```
 
-`deploy.sh` checks `.env`, gives the files to the site user, runs `npm ci`, builds, and starts or reloads PM2 (`medialinkers`, port 3113). In CloudPanel the site must be a **Node.js** site with **App Port 3113**; add SSL from *SSL/TLS → New Let's Encrypt Certificate*. To start the site after a server reboot, run `pm2 startup` as the site user once and paste the line it prints as root.
+`deploy.sh` checks `.env`, gives the files to the site user, runs `npm ci`, adds any new case studies and screenshots from `scripts/case-studies*.ts` (existing ones are never overwritten), builds, and starts or reloads PM2 (`medialinkers`, port 3113). In CloudPanel the site must be a **Node.js** site with **App Port 3113**; add SSL from *SSL/TLS → New Let's Encrypt Certificate*. To start the site after a server reboot, run `pm2 startup` as the site user once and paste the line it prints as root.
 
 The sections below are the manual steps (database user, Nginx without CloudPanel, etc.).
 

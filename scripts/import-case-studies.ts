@@ -31,35 +31,54 @@ async function uploadLocal(file: string, alt: string) {
   return doc;
 }
 
-/** Creates or refreshes every case study (matched by slug). */
+type Uploaded = { image: string; caption: string; width: number; height: number };
+
+async function uploadAll(items: { file: string; caption: string }[]) {
+  const out: Uploaded[] = [];
+  for (const p of items) {
+    const m = await uploadLocal(p.file, p.caption);
+    if (m) out.push({ image: m.url, caption: p.caption, width: m.width, height: m.height });
+  }
+  return out;
+}
+
+/**
+ * Creates missing case studies. Existing ones are never overwritten (they may have been
+ * edited in the admin panel) — only empty proof screenshots, website screenshots or cover
+ * images are filled in. `overwrite: true` rewrites them from scripts/case-studies.ts.
+ */
 export async function importCaseStudies({ overwrite = false } = {}) {
   const services = await Service.find({}, "slug").lean<{ _id: unknown; slug: string }[]>();
   const bySlug = new Map(services.map((s) => [s.slug, String(s._id)]));
+  let created = 0;
+  let filled = 0;
   for (const cs of CASE_STUDIES) {
-    const current = await Project.findOne({ slug: cs.slug }, "proofs").lean<{ proofs?: unknown[] }>();
+    const current = await Project.findOne({ slug: cs.slug }, "proofs screens coverImage").lean<{ proofs?: unknown[]; screens?: unknown[]; coverImage?: string }>();
     const exists = !!current;
     if (exists && !overwrite) {
-      // Never touch edited content; only add proof screenshots if they are still missing
+      const set: Record<string, unknown> = {};
       if (!current.proofs?.length && cs.proofs.length) {
-        const proofs = [];
-        for (const p of cs.proofs) {
-          const m = await uploadLocal(p.file, p.caption);
-          if (m) proofs.push({ image: m.url, caption: p.caption, width: m.width, height: m.height });
-        }
-        if (proofs.length) {
-          await Project.updateOne({ slug: cs.slug }, { $set: { proofs } });
-          console.log(`  + screenshots added: ${cs.slug} (${proofs.length})`);
-          continue;
-        }
+        const proofs = await uploadAll(cs.proofs);
+        if (proofs.length) set.proofs = proofs;
       }
-      console.log("  = case study exists:", cs.slug);
+      if (!current.screens?.length && cs.screens?.length) {
+        const shots = await uploadAll(cs.screens);
+        if (shots.length) set.screens = shots.map((x, i) => ({ ...x, device: cs.screens![i]?.device || "desktop" }));
+      }
+      if (!current.coverImage && cs.cover) {
+        const m = await uploadLocal(cs.cover, `${cs.client} website`);
+        if (m) set.coverImage = m.url;
+      }
+      if (Object.keys(set).length) {
+        await Project.updateOne({ slug: cs.slug }, { $set: set });
+        console.log(`  + added ${Object.keys(set).join(", ")}: ${cs.slug}`);
+        filled++;
+      }
       continue;
     }
-    const proofs = [];
-    for (const p of cs.proofs) {
-      const m = await uploadLocal(p.file, p.caption);
-      if (m) proofs.push({ image: m.url, caption: p.caption, width: m.width, height: m.height });
-    }
+    const proofs = await uploadAll(cs.proofs);
+    const screens = (await uploadAll(cs.screens || [])).map((x, i) => ({ ...x, device: cs.screens![i]?.device || "desktop" }));
+    const cover = cs.cover ? await uploadLocal(cs.cover, `${cs.client} website`) : null;
     const missing = cs.services.filter((s) => !bySlug.has(s));
     if (missing.length) console.warn("  ! unknown service slugs:", missing.join(", "));
     const doc = {
@@ -78,15 +97,19 @@ export async function importCaseStudies({ overwrite = false } = {}) {
       featured: cs.featured,
       order: cs.order,
       results: cs.results,
-      trend: cs.trend,
+      trend: cs.trend || { label: "", points: [] },
       challenge: cs.challenge,
       approach: cs.approach,
       outcome: cs.outcome,
       proofs,
+      screens,
+      coverImage: cover?.url || "",
       status: "published",
       seo: cs.seo,
     };
     await Project.updateOne({ slug: cs.slug }, { $set: doc }, { upsert: true });
-    console.log(exists ? "  ↻ case study updated:" : "  + case study created:", cs.slug);
+    console.log(exists ? "  ↻ case study rewritten:" : "  + case study created:", cs.slug);
+    created++;
   }
+  console.log(`Case studies: ${created} created/rewritten, ${filled} updated with missing images, ${CASE_STUDIES.length - created - filled} unchanged`);
 }

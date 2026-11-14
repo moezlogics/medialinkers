@@ -1,7 +1,8 @@
 /**
- * Case study content. Numbers come straight from the clients' Google Search Console
- * and store dashboards (screenshots in "../case studies/"). Used by the seed and the
- * 2026-11 update script. Trend points trace the shape of each Search Console chart.
+ * Case study content. Numbers come straight from the clients' Google Search Console,
+ * Semrush, Business Profile and store dashboards (screenshots in scripts/case-study-images).
+ * Used by the seed and by scripts/sync-case-studies.ts (run on every deploy).
+ * Trend points trace the shape of each chart; studies without a clear trend have none.
  */
 export type CaseStudySeed = {
   slug: string;
@@ -20,16 +21,20 @@ export type CaseStudySeed = {
   featured: boolean;
   order: number;
   results: { value: string; label: string; before?: string; after?: string }[];
-  trend: { label: string; points: number[] };
+  trend?: { label: string; points: number[] };
   challenge: string;
   approach: { title: string; text: string; icon: string }[];
   outcome: string;
-  /** File names inside "../case studies/" */
+  /** Data screenshots (file names inside scripts/case-study-images) */
   proofs: { file: string; caption: string }[];
+  /** Screenshots of a website we built */
+  screens?: { file: string; device: "desktop" | "mobile"; caption: string }[];
+  /** Card / share image (file name), e.g. the desktop screenshot of a website we built */
+  cover?: string;
   seo: { metaTitle: string; metaDescription: string };
 };
 
-export const CASE_STUDIES: CaseStudySeed[] = [
+export const CASE_STUDIES_BASE: CaseStudySeed[] = [
   {
     slug: "propertydealer-pk",
     title: "PropertyDealer.pk: from a brand-new website to 64K+ organic clicks",
@@ -68,6 +73,11 @@ export const CASE_STUDIES: CaseStudySeed[] = [
     ],
     outcome: "In 10 months PropertyDealer.pk grew from a new domain to 64,100 organic clicks and 5.81 million impressions — and now gets 450+ visitors a day from Google alone.",
     proofs: [{ file: "Screenshot 2026-11-12 174903.png", caption: "Google Search Console, Jan – Nov 2026: 64.1K clicks, 5.81M impressions, average position 6.9" }],
+    screens: [
+      { file: "propertydealer-site-desktop.webp", device: "desktop", caption: "Home page: city, area, type, price and size search in one place" },
+      { file: "propertydealer-site-phone.webp", device: "mobile", caption: "Mobile: app-style bottom navigation and a quick “Add property” button" },
+    ],
+    cover: "propertydealer-site-desktop.webp",
     seo: {
       metaTitle: "PropertyDealer.pk Case Study: 0 to 64K Organic Clicks in 10 Months",
       metaDescription: "How Media Linkers built PropertyDealer.pk and grew it with SEO, content and social media to 64.1K organic clicks and 5.81M Google impressions in 10 months.",
@@ -240,3 +250,6 @@ export const CASE_STUDIES: CaseStudySeed[] = [
     },
   },
 ];
+
+import { MORE_CASE_STUDIES } from "./case-studies-more";
+export const CASE_STUDIES: CaseStudySeed[] = [...CASE_STUDIES_BASE, ...MORE_CASE_STUDIES];

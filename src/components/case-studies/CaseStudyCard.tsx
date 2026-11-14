@@ -1,14 +1,24 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Lock, MapPin } from "lucide-react";
 import TrendChart from "./TrendChart";
+import { BrowserFrame, domainOf } from "./Frames";
 import { accentFor, clientName } from "@/lib/case-studies";
 import type { ProjectDoc } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Props = { project: ProjectDoc; tags: string[]; index?: number; feature?: boolean; className?: string };
 
+/**
+ * Dark visual at the top of a card. It shows, in order of preference: the growth chart,
+ * the website we built (in a browser frame) or a peek at the real data screenshot.
+ */
 function Panel({ p, color, big }: { p: ProjectDoc; color: string; big?: boolean }) {
   const head = p.results?.[0];
+  const trend = p.trend?.points && p.trend.points.length > 1 ? p.trend.points : null;
+  const cover = !trend && p.coverImage ? p.coverImage : null;
+  const proof = !trend && !cover ? p.proofs?.[0] : null;
+  const bleed = big ? "-mx-6 -mb-6 sm:-mx-8 sm:-mb-8" : "-mx-5 -mb-5 sm:-mx-6 sm:-mb-6";
   return (
     <div className={cn("relative isolate flex flex-col overflow-hidden bg-ink text-white", big ? "min-h-[300px] p-6 sm:p-8 lg:min-h-full" : "min-h-[250px] p-5 sm:p-6")}>
       {/* soft glow in the project colour */}
@@ -27,14 +37,28 @@ function Panel({ p, color, big }: { p: ProjectDoc; color: string; big?: boolean 
         </span>
       </div>
       {head && (
-        <div className="mt-6">
-          <p className={cn("font-display font-extrabold leading-none tracking-tight", big ? "text-6xl sm:text-7xl" : "text-5xl")} style={{ color }}>{head.value}</p>
+        <div className={cover ? "mt-4" : "mt-6"}>
+          <p className={cn("font-display font-extrabold leading-none tracking-tight", cover ? (big ? "text-4xl sm:text-5xl" : "text-3xl") : big ? "text-6xl sm:text-7xl" : "text-5xl")} style={{ color }}>
+            {head.value}
+          </p>
           <p className="mt-2 max-w-[18rem] text-sm text-white/65">{head.label}</p>
         </div>
       )}
-      {p.trend?.points && p.trend.points.length > 1 && (
-        <div className={cn("pointer-events-none mt-auto pt-5 text-white", big ? "-mx-6 -mb-6 sm:-mx-8 sm:-mb-8" : "-mx-5 -mb-5 sm:-mx-6 sm:-mb-6")}>
-          <TrendChart points={p.trend.points} color={color} />
+      {trend && (
+        <div className={cn("pointer-events-none mt-auto pt-5 text-white", bleed)}>
+          <TrendChart points={trend} color={color} />
+        </div>
+      )}
+      {cover && (
+        <div className="pointer-events-none mt-auto pt-5">
+          <BrowserFrame src={cover} alt={`${p.client || p.title} website`} url={domainOf(p.website)} sizes={big ? "(min-width:1024px) 40vw, 100vw" : "(min-width:1280px) 28vw, (min-width:768px) 45vw, 100vw"} className="translate-y-6 transition-transform duration-700 group-hover:translate-y-3" />
+        </div>
+      )}
+      {proof && (
+        <div className="pointer-events-none mt-auto pt-5">
+          <div className="relative h-28 translate-y-5 overflow-hidden rounded-xl bg-white ring-1 ring-white/20 transition-transform duration-700 group-hover:translate-y-2 sm:h-32">
+            <Image src={proof.image} alt="" fill sizes="(min-width:1280px) 28vw, (min-width:768px) 45vw, 100vw" className="object-cover object-left-top" />
+          </div>
         </div>
       )}
     </div>
@@ -61,7 +85,7 @@ export default function CaseStudyCard({ project: p, tags, index = 0, feature = f
             {more.map((r) => (
               <div key={r.label} className="flex min-w-0 flex-col">
                 <dt className="order-2 mt-1 text-xs leading-snug text-muted">{r.label}</dt>
-                <dd className="order-1 font-display text-2xl font-extrabold leading-none">{r.value}</dd>
+                <dd className="order-1 break-words font-display text-xl font-extrabold leading-none sm:text-2xl">{r.value}</dd>
               </div>
             ))}
           </dl>

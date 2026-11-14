@@ -577,10 +577,10 @@ async function main() {
       },
       {
         title: "Case Studies", slug: "case-studies", system: true, schemaType: "CollectionPage",
-        seo: { metaTitle: "Case Studies — Real SEO & Digital Marketing Results | Media Linkers", metaDescription: "Real results from Media Linkers clients: 84K+ organic clicks and 8.5M+ Google impressions across real estate, B2B, chemicals and e-commerce. See the data." },
+        seo: { metaTitle: "Case Studies — Real SEO & Digital Marketing Results | Media Linkers", metaDescription: "Real results from Media Linkers clients: 850K+ organic clicks and 90M+ Google impressions across 6 countries — SEO, local SEO, AI visibility and web development." },
         sections: [
           sec("pageHero", { eyebrow: "Case studies", title: "Results you can *verify*", text: "Real numbers from our clients’ own Google Search Console and store dashboards. No mock-ups, no projections — just the growth we delivered.", primaryCta: { label: "Get results like these", href: "/contact-us" }, secondaryCta: { label: "Free SEO audit", href: "#free-audit" } }),
-          sec("stats", { eyebrow: "At a glance", title: "What these clients *gained*", items: [{ value: "84K+", label: "Organic clicks delivered" }, { value: "8.5M+", label: "Google search impressions" }, { value: "23×", label: "Biggest impressions jump" }, { value: "5", label: "Industries" }] }),
+          sec("stats", { eyebrow: "At a glance", title: "What these clients *gained*", items: [{ value: "850K+", label: "Organic clicks delivered" }, { value: "90M+", label: "Google search impressions" }, { value: "31×", label: "Biggest traffic jump" }, { value: "6", label: "Countries · 15+ industries" }] }),
           sec("work", { eyebrow: "", title: "", text: "", layout: "grid", limit: 0, featuredOnly: false, cta: { label: "", href: "" } }),
           sec("logos", { items: logos }),
           sec("testimonials"),

@@ -142,6 +142,7 @@ export const RESOURCES: Record<string, Resource> = {
       if (b.accent && !/^#[0-9a-f]{3,8}$/i.test(b.accent)) throw new Error("Chart colour must be a hex value like #d4ff3a");
       if (b.trend?.points) b.trend.points = b.trend.points.map(Number).filter((n: number) => Number.isFinite(n)).slice(0, 120);
       if (Array.isArray(b.proofs)) b.proofs = b.proofs.filter((x: any) => x?.image);
+      if (Array.isArray(b.screens)) b.screens = b.screens.filter((x: any) => x?.image).map((x: any) => ({ ...x, device: x.device === "mobile" ? "mobile" : "desktop" }));
       return b;
     },
   },

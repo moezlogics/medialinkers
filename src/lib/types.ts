@@ -117,6 +117,7 @@ export type PostDoc = {
 
 export type ProjectResult = { value: string; label: string; before?: string; after?: string };
 export type ProjectProof = { image: string; caption?: string; width?: number; height?: number };
+export type ProjectScreen = ProjectProof & { device?: "desktop" | "mobile" };
 
 export type ProjectDoc = {
   _id: string;
@@ -143,6 +144,7 @@ export type ProjectDoc = {
   content?: string;
   outcome?: string;
   proofs?: ProjectProof[];
+  screens?: ProjectScreen[];
   quote?: { text?: string; name?: string; role?: string };
   gallery?: string[];
   featured?: boolean;

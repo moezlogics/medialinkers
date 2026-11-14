@@ -39,6 +39,9 @@ if [ "${1:-}" = "--first" ]; then
   npm run seed
 fi
 
+echo "→ Adding new case studies and screenshots (existing content is never changed)"
+npx tsx scripts/sync-case-studies.ts
+
 echo "→ Building the site"
 npm run build
 

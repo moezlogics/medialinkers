@@ -9,6 +9,7 @@ import { Reveal } from "@/components/site/Reveal";
 import SectionHeading from "@/components/site/SectionHeading";
 import TrendChart from "@/components/case-studies/TrendChart";
 import CaseStudyCard from "@/components/case-studies/CaseStudyCard";
+import { BrowserFrame, PhoneFrame, domainOf } from "@/components/case-studies/Frames";
 import Cta from "@/components/sections/Cta";
 import Scene3D from "@/components/three/Scene3D";
 import { getProject, getProjects, getServices, getSettings } from "@/lib/data";
@@ -56,6 +57,10 @@ export default async function CaseStudyPage({ params }: Props) {
   const related = all.filter((x) => x.slug !== p.slug).slice(0, 2);
   const kicker = [used[0]?.mainShort ? `${used[0].mainShort} case study` : "Case study", p.industry].filter(Boolean).join(" · ");
   const ctx = { settings, services, path, headingAs: "h2" as const };
+  const hasTrend = !!(p.trend?.points && p.trend.points.length > 1);
+  const desktops = (p.screens || []).filter((x) => x.device !== "mobile");
+  const phones = (p.screens || []).filter((x) => x.device === "mobile");
+  const showSite = !hasTrend && (desktops.length > 0 || !!p.coverImage);
 
   const facts = [
     { label: "Client", value: clientName(p), icon: p.confidential ? Lock : null },
@@ -99,11 +104,17 @@ export default async function CaseStudyPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Headline result */}
+          {/* Website we built, or the headline result */}
+          {showSite ? (
+            <div className="anim-rise relative pb-10 pr-6 sm:pr-14" style={{ animationDelay: ".1s" }}>
+              <BrowserFrame src={desktops[0]?.image || p.coverImage!} alt={`${clientName(p)} website on desktop`} url={domainOf(p.website)} priority sizes="(min-width:1024px) 45vw, 100vw" />
+              {phones[0] && <PhoneFrame src={phones[0].image} alt={`${clientName(p)} website on mobile`} className="absolute -bottom-2 right-0 w-[30%] max-w-[170px]" />}
+            </div>
+          ) : (
           <div className="anim-rise relative isolate overflow-hidden rounded-[2rem] bg-ink p-6 text-white shadow-[0_40px_90px_-40px_rgba(0,0,0,.6)] sm:p-8" style={{ animationDelay: ".1s" }}>
             <div className="pointer-events-none absolute -right-20 -top-24 -z-10 size-72 rounded-full opacity-30 blur-3xl" style={{ background: color }} aria-hidden="true" />
             <div className="flex items-center justify-between gap-3 text-sm text-white/60">
-              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-4" style={{ color }} /> Real client data</span>
+              {p.proofs?.length ? <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-4" style={{ color }} /> Real client data</span> : <span />}
               {p.period && <span className="hidden items-center gap-1.5 sm:inline-flex"><CalendarRange className="size-4" /> {p.period}</span>}
             </div>
             {head && (
@@ -117,8 +128,9 @@ export default async function CaseStudyPage({ params }: Props) {
                 <TrendChart points={p.trend.points} color={color} label={p.trend.label || "Growth trend"} />
               </div>
             )}
-            {p.trend?.label && <p className="relative mt-2 text-right text-[11px] uppercase tracking-[0.14em] text-white/40">{p.trend.label}</p>}
+            {hasTrend && p.trend?.label && <p className="relative mt-2 text-right text-[11px] uppercase tracking-[0.14em] text-white/40">{p.trend.label}</p>}
           </div>
+          )}
         </div>
       </section>
 
@@ -152,6 +164,41 @@ export default async function CaseStudyPage({ params }: Props) {
                   </Reveal>
                 );
               })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* The website we built */}
+      {(desktops.length > 0 || phones.length > 0) && (
+        <section className="section overflow-hidden bg-ink text-white">
+          <div className="container-x">
+            <SectionHeading
+              eyebrow="Design & development"
+              title={`The website we *built*`}
+              text={p.website && !p.confidential ? `Live at ${domainOf(p.website)} — designed, developed and optimised by our team.` : "Designed, developed and optimised by our team."}
+              action={p.website && !p.confidential ? <a href={p.website} target="_blank" rel="noopener" className="btn btn-light shrink-0">Visit the website <ArrowUpRight className="size-4" /></a> : undefined}
+              dark
+            />
+            <div className={phones.length ? "grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-10" : "grid gap-6"}>
+              <div className="space-y-6">
+                {desktops.map((d, i) => (
+                  <Reveal as="article" key={d.image + i}>
+                    <BrowserFrame src={d.image} alt={d.caption || `${clientName(p)} website`} url={domainOf(p.website)} sizes="(min-width:1024px) 60vw, 100vw" imgClassName="aspect-[16/10]" />
+                    {d.caption && <p className="mt-3 text-sm text-white/60">{d.caption}</p>}
+                  </Reveal>
+                ))}
+              </div>
+              {phones.length > 0 && (
+                <div className="mx-auto grid w-full max-w-[260px] gap-6 sm:max-w-none sm:grid-cols-2 lg:grid-cols-1">
+                  {phones.map((m, i) => (
+                    <Reveal as="article" key={m.image + i} delay={0.08}>
+                      <PhoneFrame src={m.image} alt={m.caption || `${clientName(p)} website on mobile`} />
+                      {m.caption && <p className="mt-3 text-sm text-white/60">{m.caption}</p>}
+                    </Reveal>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
