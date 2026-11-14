@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
       { source: "/our-work", destination: "/case-studies", permanent: true },
       { source: "/our-work/:slug", destination: "/case-studies/:slug", permanent: true },
       { source: "/work", destination: "/case-studies", permanent: true },
+      { source: "/case-studies/zmobiles-pk", destination: "/case-studies/mobile-store-seo-pakistan", permanent: true },
+      { source: "/case-studies/mymobile-pk", destination: "/case-studies/tech-store-seo-pakistan", permanent: true },
     ];
   },
   async headers() {

@@ -8,7 +8,28 @@ import { config } from "dotenv";
 config({ path: [".env.local", ".env"], quiet: true });
 import mongoose from "mongoose";
 import { importCaseStudies } from "./import-case-studies";
-import { Page } from "../src/lib/models";
+import { Media, Page, Project } from "../src/lib/models";
+
+// Case studies that were renamed (old slug → new slug) and screenshots that were renamed.
+// The old entries are removed so the new anonymous versions are created in their place.
+const RENAMED_CASE_STUDIES: Record<string, string> = {
+  "zmobiles-pk": "mobile-store-seo-pakistan",
+  "mymobile-pk": "tech-store-seo-pakistan",
+};
+const RENAMED_FILES: Record<string, string> = {
+  "zmobiles-gsc.png": "mobile-store-gsc.png",
+  "mymobile-gsc.png": "tech-store-gsc.png",
+};
+
+async function applyRenames() {
+  for (const [from, to] of Object.entries(RENAMED_FILES)) {
+    await Media.updateOne({ originalName: from }, { $set: { originalName: to } });
+  }
+  for (const [from, to] of Object.entries(RENAMED_CASE_STUDIES)) {
+    const res = await Project.deleteOne({ slug: from });
+    if (res.deletedCount) console.log(`  ↻ case study renamed: ${from} → ${to}`);
+  }
+}
 
 // Totals across all case studies (Nov 2026)
 export const CASE_STUDY_STATS = [
@@ -22,6 +43,7 @@ async function main() {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error("MONGODB_URI missing — add it to .env or .env.local");
   await mongoose.connect(uri);
+  await applyRenames();
   await importCaseStudies();
   // Refresh the totals on /case-studies only while they still show the first-launch numbers
   const res = await Page.updateOne(
